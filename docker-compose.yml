@@ -1,0 +1,49 @@
+version: '3.1'
+services:
+
+  luckyonline_nginx:
+    container_name:
+      luckyonline_nginx
+    build:
+      context: ./docker/nginx
+    ports:
+      - 80:80
+    links:
+      - luckyonline_php
+    volumes:
+      - ./app:/app
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+
+  luckyonline_php:
+    container_name:
+      luckyonline_php
+    build:
+      context: ./docker/php-fpm
+    volumes:
+      - ./app:/app
+
+  luckyonline_db:
+    container_name:
+      luckyonline_db
+    build:
+      context: ./docker/db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lucky_online
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  luckyonline_composer:
+    container_name:
+      luckyonline_composer
+    build:
+      context: ./docker/composer
+    command: composer update
+    volumes:
+      - ./app:/app
+
+volumes:
+  dbdata:
+    driver: local
